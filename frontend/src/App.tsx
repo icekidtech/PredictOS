@@ -8,6 +8,7 @@ import Backtests from "./pages/Backtests";
 import Events from "./pages/Events";
 import Settings from "./pages/Settings";
 import Login from "./pages/Login";
+import AuthCallback from "./pages/AuthCallback";
 
 function Protected({ children }: { children: React.ReactNode }) {
   const { token } = useAuth();
@@ -22,6 +23,7 @@ export default function App() {
         <Routes>
           {/* Public landing */}
           <Route path="/" element={<Landing />} />
+          <Route path="/auth/callback" element={<Layout><AuthCallback /></Layout>} />
           <Route path="/login" element={<Layout><Login /></Layout>} />
           <Route path="/events" element={<Layout><Events /></Layout>} />
           {/* Protected */}
