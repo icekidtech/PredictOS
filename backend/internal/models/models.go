@@ -30,10 +30,21 @@ type User struct {
 	BaseModel
 	Username        string  `gorm:"uniqueIndex;size:50;not null" json:"username"`
 	Email           string  `gorm:"uniqueIndex;size:100;not null" json:"email"`
-	WalletAddress   string  `gorm:"uniqueIndex;size:66;not null" json:"wallet_address"`
+	WalletAddress   string  `gorm:"size:66" json:"wallet_address"` // nullable — Google users may not have wallet yet
+	GoogleID        string  `gorm:"size:100;uniqueIndex" json:"-"`
+	AvatarURL       string  `gorm:"size:500" json:"avatar_url"`
+	AuthProvider    string  `gorm:"size:20;default:wallet" json:"auth_provider"` // wallet | google | both
 	StartingCapital float64 `gorm:"default:10000" json:"starting_capital"`
 	RiskMode        string  `gorm:"size:20;default:moderate" json:"risk_mode"`
 	IsActive        bool    `gorm:"default:true" json:"is_active"`
+}
+
+// Nonce for SIWE replay protection
+type Nonce struct {
+	ID        uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
+	Value     string    `gorm:"size:100;uniqueIndex;not null" json:"value"`
+	ExpiresAt time.Time `gorm:"not null" json:"expires_at"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 // ---------- UserSettings ----------
