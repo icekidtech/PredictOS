@@ -52,8 +52,8 @@ type Nonce struct {
 type UserSettings struct {
 	BaseModel
 	UserID          uuid.UUID      `gorm:"type:uuid;uniqueIndex;not null" json:"user_id"`
-	AIProvider      string         `gorm:"size:50;default:openai" json:"ai_provider"`
-	AIModel         string         `gorm:"size:100;default:gpt-4o-mini" json:"ai_model"`
+	AIProvider      string         `gorm:"column:ai_provider;size:50;default:openai" json:"ai_provider"`
+	AIModel         string         `gorm:"column:ai_model;size:100;default:gpt-4o-mini" json:"ai_model"`
 	APIKeyEncrypted string         `gorm:"type:text" json:"-"`
 	Network         string         `gorm:"size:20;default:testnet" json:"network"` // testnet | mainnet
 	Preferences     datatypes.JSON `gorm:"type:jsonb;default:'{}'" json:"preferences"`
@@ -73,9 +73,9 @@ type Strategy struct {
 
 	TotalTrades int      `gorm:"default:0" json:"total_trades"`
 	WinCount    int      `gorm:"default:0" json:"win_count"`
-	TotalPnL    float64  `gorm:"default:0" json:"total_pnl"`
-	SharpeRatio *float64 `json:"sharpe_ratio"`
-	MaxDrawdown *float64 `json:"max_drawdown"`
+	TotalPnL    float64  `gorm:"column:total_pnl;default:0" json:"total_pnl"`
+	SharpeRatio *float64 `gorm:"column:sharpe_ratio" json:"sharpe_ratio"`
+	MaxDrawdown *float64 `gorm:"column:max_drawdown" json:"max_drawdown"`
 }
 
 // ---------- HistoricalEvent ----------
@@ -122,8 +122,8 @@ type Trade struct {
 	ExitPrice  *float64   `json:"exit_price"`
 	ExitTime   *time.Time `json:"exit_time"`
 	ExitReason *string    `gorm:"size:50" json:"exit_reason"`
-	PnL        *float64   `json:"pnl"`
-	PnLPercent *float64   `json:"pnl_percent"`
+	PnL        *float64   `gorm:"column:pnl" json:"pnl"`
+	PnLPercent *float64   `gorm:"column:pnl_percent" json:"pnl_percent"`
 }
 
 // ---------- Backtest ----------
@@ -136,8 +136,8 @@ type Backtest struct {
 	EndDate         time.Time      `gorm:"not null" json:"end_date"`
 	InitialCapital  float64        `gorm:"not null" json:"initial_capital"`
 	FinalCapital    *float64       `json:"final_capital"`
-	TotalPnL        *float64       `json:"total_pnl"`
-	TotalReturn     *float64       `json:"total_return"`
+	TotalPnL        *float64       `gorm:"column:total_pnl" json:"total_pnl"`
+	TotalReturn     *float64       `gorm:"column:total_return" json:"total_return"`
 	TotalTrades     *int           `json:"total_trades"`
 	WinningTrades   *int           `json:"winning_trades"`
 	LosingTrades    *int           `json:"losing_trades"`
@@ -166,10 +166,10 @@ type Position struct {
 	EntryPrice           float64   `gorm:"not null" json:"entry_price"`
 	EntryTime            time.Time `gorm:"not null" json:"entry_time"`
 	CurrentPrice         *float64  `json:"current_price"`
-	UnrealizedPnL        *float64  `json:"unrealized_pnl"`
-	UnrealizedPnLPercent *float64  `json:"unrealized_pnl_percent"`
-	StopLossPrice        *float64  `json:"stop_loss_price"`
-	TakeProfitPrice      *float64  `json:"take_profit_price"`
+	UnrealizedPnL        *float64  `gorm:"column:unrealized_pnl" json:"unrealized_pnl"`
+	UnrealizedPnLPercent *float64  `gorm:"column:unrealized_pnl_percent" json:"unrealized_pnl_percent"`
+	StopLossPrice        *float64  `gorm:"column:stop_loss_price" json:"stop_loss_price"`
+	TakeProfitPrice      *float64  `gorm:"column:take_profit_price" json:"take_profit_price"`
 }
 
 // ---------- AgentLog ----------

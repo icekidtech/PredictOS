@@ -35,12 +35,11 @@ func Connect(databaseURL string) *gorm.DB {
 		log.Fatalf("auto-migration failed: %v", err)
 	}
 
-	// TimescaleDB hypertable for price_history (GORM doesn't natively support it)
-	// Safe to run repeatedly — uses IF NOT EXISTS
-	db.Exec(`SELECT create_hypertable('price_history', 'time', if_not_exists => TRUE, migrate_data => TRUE)`)
-	// Compression policy (ignore errors if TimescaleDB not available)
-	db.Exec(`ALTER TABLE price_history SET (timescaledb.compress, timescaledb.compress_orderby = 'time DESC')`)
-	db.Exec(`SELECT add_compression_policy('price_history', INTERVAL '7 days', if_not_exists => TRUE)`)
+	// TimescaleDB hypertable — only if extension is installed (plain Postgres is fine for MVP)
+	if db.Exec(`SELECT create_hypertable('price_history', 'time', if_not_exists => TRUE, migrate_data => TRUE)`).Error == nil {
+		db.Exec(`ALTER TABLE price_history SET (timescaledb.compress, timescaledb.compress_orderby = 'time DESC')`)
+		db.Exec(`SELECT add_compression_policy('price_history', INTERVAL '7 days', if_not_exists => TRUE)`)
+	}
 
 	log.Println("database connected and migrated")
 	return db
