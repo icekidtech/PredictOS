@@ -21,6 +21,7 @@ func Connect(databaseURL string) *gorm.DB {
 	// Auto-migrate all models (no SQL files)
 	if err := db.AutoMigrate(
 		&models.User{},
+		&models.Nonce{},
 		&models.UserSettings{},
 		&models.Strategy{},
 		&models.HistoricalEvent{},
