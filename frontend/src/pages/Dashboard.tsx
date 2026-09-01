@@ -1,15 +1,44 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { portfolioApi } from "../services/api";
+import { useAccount, useSignMessage } from "wagmi";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { portfolioApi, authApi } from "../services/api";
+import { useAuth } from "../store/auth";
 
 export default function Dashboard() {
+  const { user } = useAuth();
+  const { address, isConnected } = useAccount();
+  const { signMessageAsync } = useSignMessage();
   const [summary, setSummary] = useState<Record<string, unknown> | null>(null);
   const [positions, setPositions] = useState<unknown[]>([]);
+  const [linking, setLinking] = useState(false);
+  const [linkError, setLinkError] = useState("");
+
+  const hasWallet = !!user?.wallet_address;
+  const needsWallet = !hasWallet;
 
   useEffect(() => {
     portfolioApi.summary().then((r) => setSummary(r.data)).catch(() => {});
     portfolioApi.positions().then((r) => setPositions(r.data.positions ?? [])).catch(() => {});
   }, []);
+
+  const handleLinkWallet = async () => {
+    if (!address) return;
+    setLinking(true);
+    setLinkError("");
+    try {
+      const { data } = await authApi.nonce(address);
+      const signature = await signMessageAsync({ message: data.message });
+      await authApi.walletLink({ address, message: data.message, signature });
+      // Refresh user — reload to pick up new wallet_address
+      window.location.reload();
+    } catch (e: unknown) {
+      const msg = (e as { response?: { data?: { error?: string } } })?.response?.data?.error || (e instanceof Error ? e.message : "Failed to link wallet");
+      setLinkError(msg);
+    } finally {
+      setLinking(false);
+    }
+  };
 
   return (
     <div className="space-y-6 sm:space-y-8">
@@ -24,11 +53,33 @@ export default function Dashboard() {
         </Link>
       </div>
 
-      {/* Stats — mobile: 2 cols, desktop: 4 cols */}
+      {/* Wallet banner — Google users without wallet */}
+      {needsWallet && (
+        <div className="rounded-2xl bg-amber-500/10 border border-amber-500/20 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex gap-3">
+            <span className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-300 shrink-0">◈</span>
+            <div>
+              <div className="text-sm font-medium text-amber-200">Connect wallet to enable live trading</div>
+              <div className="text-xs text-amber-200/70 mt-1">You signed in with Google. Link a wallet to deploy agents on DreamDEX.</div>
+            </div>
+          </div>
+          <div className="flex flex-col gap-2 sm:items-end">
+            <ConnectButton />
+            {isConnected && address && (
+              <button onClick={handleLinkWallet} disabled={linking} className="text-xs bg-amber-500 hover:bg-amber-400 text-zinc-900 px-4 py-2 rounded-full font-medium disabled:opacity-50">
+                {linking ? "Linking..." : "Sign & Link Wallet"}
+              </button>
+            )}
+            {linkError && <span className="text-xs text-red-400">{linkError}</span>}
+          </div>
+        </div>
+      )}
+
+      {/* Stats — real data, no mock */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <StatCard label="Total Value" value={summary ? `$${Number(summary.total_value).toFixed(2)}` : "—"} sub="Portfolio value" />
+        <StatCard label="Total Value" value={summary ? `$${Number(summary.total_value).toFixed(2)}` : "—"} sub={summary && Number(summary.positions) === 0 ? "No trades yet" : "Portfolio value"} />
         <StatCard label="Unrealized P&L" value={summary ? `$${Number(summary.unrealized_pnl).toFixed(2)}` : "—"} sub={summary ? `${(Number(summary.unrealized_pnl_percent) * 100).toFixed(2)}%` : "—"} accent />
-        <StatCard label="Cash Available" value={summary ? `$${Number(summary.cash_available).toFixed(2)}` : "—"} sub="Ready to deploy" />
+        <StatCard label="Cash Available" value={summary ? `$${Number(summary.cash_available).toFixed(2)}` : "—"} sub={needsWallet ? "Connect wallet for live" : "Ready to deploy"} />
         <StatCard label="Positions" value={summary ? String(summary.positions) : "—"} sub="Open positions" />
       </div>
 
