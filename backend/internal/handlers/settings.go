@@ -27,7 +27,7 @@ func (h *SettingsHandler) Get(c *fiber.Ctx) error {
 	if err := h.db.Where("user_id = ?", userID).First(&s).Error; err != nil {
 		return c.JSON(fiber.Map{
 			"ai_provider": "openai",
-			"ai_model":    "gpt-4o",
+			"ai_model":    "gpt-4o-mini",
 			"has_api_key": false,
 			"network":     "testnet",
 		})

@@ -53,7 +53,7 @@ type UserSettings struct {
 	BaseModel
 	UserID          uuid.UUID      `gorm:"type:uuid;uniqueIndex;not null" json:"user_id"`
 	AIProvider      string         `gorm:"size:50;default:openai" json:"ai_provider"`
-	AIModel         string         `gorm:"size:100;default:gpt-4o" json:"ai_model"`
+	AIModel         string         `gorm:"size:100;default:gpt-4o-mini" json:"ai_model"`
 	APIKeyEncrypted string         `gorm:"type:text" json:"-"`
 	Network         string         `gorm:"size:20;default:testnet" json:"network"` // testnet | mainnet
 	Preferences     datatypes.JSON `gorm:"type:jsonb;default:'{}'" json:"preferences"`

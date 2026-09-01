@@ -24,7 +24,7 @@ func main() {
 
 	var providers []ai.Provider
 	if cfg.OpenAIAPIKey != "" {
-		providers = append(providers, ai.NewOpenAIProvider(cfg.OpenAIAPIKey, "gpt-4o"))
+		providers = append(providers, ai.NewOpenAIProvider(cfg.OpenAIAPIKey, "gpt-4o-mini"))
 	}
 	if cfg.AnthropicKey != "" {
 		providers = append(providers, ai.NewAnthropicProvider(cfg.AnthropicKey, ""))

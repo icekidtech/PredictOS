@@ -15,7 +15,7 @@ type OpenAIProvider struct {
 
 func NewOpenAIProvider(apiKey, model string) *OpenAIProvider {
 	if model == "" {
-		model = openai.GPT4o
+		model = openai.GPT4oMini
 	}
 	return &OpenAIProvider{
 		client: openai.NewClient(apiKey),
