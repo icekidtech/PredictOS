@@ -7,19 +7,19 @@ import (
 )
 
 type Config struct {
-	Port                  string
-	DatabaseURL           string
-	JWTSecret             string
-	EncryptionKey         string
-	OpenAIAPIKey          string
-	AnthropicKey          string
-	SomniaTestnetRPCURL   string
-	SomniaMainnetRPCURL   string
-	GoogleClientID        string
-	GoogleClientSecret    string
-	GoogleRedirectURL     string
-	FrontendURL           string
-	Env                   string
+	Port                string
+	DatabaseURL         string
+	JWTSecret           string
+	EncryptionKey       string
+	OpenAIAPIKey        string
+	AnthropicKey        string
+	SomniaTestnetRPCURL string
+	SomniaMainnetRPCURL string
+	GoogleClientID      string
+	GoogleClientSecret  string
+	GoogleRedirectURL   string
+	FrontendURL         string
+	Env                 string
 }
 
 func Load() *Config {
@@ -28,19 +28,19 @@ func Load() *Config {
 	_ = godotenv.Load("../../.env")
 
 	return &Config{
-		Port:                  getEnv("PORT", ""),
-		DatabaseURL:           getEnv("DATABASE_URL", ""),
-		JWTSecret:             getEnv("JWT_SECRET", ""),
-		EncryptionKey:         getEnv("ENCRYPTION_KEY", ""), // 32 bytes for AES-256
-		OpenAIAPIKey:          getEnv("OPENAI_API_KEY", ""),
-		AnthropicKey:          getEnv("ANTHROPIC_API_KEY", ""),
-		SomniaTestnetRPCURL:   getEnv("SOMNIA_TESTNET_RPC_URL", ""),
-		SomniaMainnetRPCURL:   getEnv("SOMNIA_MAINNET_RPC_URL", ""),
-		GoogleClientID:        getEnv("GOOGLE_CLIENT_ID", ""),
-		GoogleClientSecret:    getEnv("GOOGLE_CLIENT_SECRET", ""),
-		GoogleRedirectURL:     getEnv("GOOGLE_REDIRECT_URL", ""),
-		FrontendURL:           getEnv("FRONTEND_URL", ""),
-		Env:                   getEnv("ENV", "development"),
+		Port:                getEnv("PORT", ""),
+		DatabaseURL:         getEnv("DATABASE_URL", ""),
+		JWTSecret:           getEnv("JWT_SECRET", ""),
+		EncryptionKey:       getEnv("ENCRYPTION_KEY", ""), // 32 bytes for AES-256
+		OpenAIAPIKey:        getEnv("OPENAI_API_KEY", ""),
+		AnthropicKey:        getEnv("ANTHROPIC_API_KEY", ""),
+		SomniaTestnetRPCURL: getEnv("SOMNIA_TESTNET_RPC_URL", ""),
+		SomniaMainnetRPCURL: getEnv("SOMNIA_MAINNET_RPC_URL", ""),
+		GoogleClientID:      getEnv("GOOGLE_CLIENT_ID", ""),
+		GoogleClientSecret:  getEnv("GOOGLE_CLIENT_SECRET", ""),
+		GoogleRedirectURL:   getEnv("GOOGLE_REDIRECT_URL", ""),
+		FrontendURL:         getEnv("FRONTEND_URL", ""),
+		Env:                 getEnv("ENV", "development"),
 	}
 }
 
