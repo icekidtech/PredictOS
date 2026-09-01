@@ -4,8 +4,10 @@ export default {
   theme: {
     extend: {
       colors: {
-        brand: { 500: "#6366f1", 600: "#4f46e5", 700: "#4338ca" },
+        brand: { 500: "#3b82f6", 600: "#2563eb", 700: "#1d4ed8" },
+        surface: { 900: "#0a0e1a", 800: "#111827", 700: "#1f2937" },
       },
+      fontFamily: { mono: ["JetBrains Mono", "monospace"] },
     },
   },
   plugins: [],
