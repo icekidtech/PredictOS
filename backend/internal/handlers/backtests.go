@@ -154,7 +154,7 @@ func runBacktestSimulation(initialCapital float64, start, end time.Time) simResu
 	var returns []float64
 
 	for i := 0; i < numTrades; i++ {
-		isWin := rand.Float64() < 0.58 // slight edge
+		isWin := rand.Float64() < 0.58    // slight edge
 		entry := 0.4 + rand.Float64()*0.4 // 0.4-0.8
 		var exit float64
 		var pnl float64
@@ -185,7 +185,7 @@ func runBacktestSimulation(initialCapital float64, start, end time.Time) simResu
 		}
 		returns = append(returns, pnl/capital)
 		trades = append(trades, map[string]interface{}{
-			"entry_time": start.Add(time.Duration(i*7) * 24 * time.Hour).Format(time.RFC3339),
+			"entry_time":  start.Add(time.Duration(i*7) * 24 * time.Hour).Format(time.RFC3339),
 			"entry_price": math.Round(entry*100) / 100,
 			"exit_price":  math.Round(exit*100) / 100,
 			"pnl":         math.Round(pnl*100) / 100,
