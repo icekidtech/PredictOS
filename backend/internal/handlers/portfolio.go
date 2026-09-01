@@ -28,13 +28,19 @@ func (h *PortfolioHandler) Summary(c *fiber.Ctx) error {
 			unrealizedPnL += *p.UnrealizedPnL
 		}
 	}
-	totalValue := user.StartingCapital + unrealizedPnL
-	cashAvailable := totalValue
-	for _, p := range positions {
-		cashAvailable -= p.Quantity * p.EntryPrice
+	// No positions = no real portfolio yet — show 0, not starting_capital
+	hasPositions := len(positions) > 0
+	totalValue := 0.0
+	cashAvailable := 0.0
+	if hasPositions {
+		totalValue = user.StartingCapital + unrealizedPnL
+		cashAvailable = totalValue
+		for _, p := range positions {
+			cashAvailable -= p.Quantity * p.EntryPrice
+		}
 	}
 	pct := 0.0
-	if user.StartingCapital > 0 {
+	if hasPositions && user.StartingCapital > 0 {
 		pct = unrealizedPnL / user.StartingCapital
 	}
 	risk := "low"
