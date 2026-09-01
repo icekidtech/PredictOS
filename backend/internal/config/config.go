@@ -15,6 +15,10 @@ type Config struct {
 	AnthropicKey          string
 	SomniaTestnetRPCURL   string
 	SomniaMainnetRPCURL   string
+	GoogleClientID        string
+	GoogleClientSecret    string
+	GoogleRedirectURL     string
+	FrontendURL           string
 	Env                   string
 }
 
@@ -32,6 +36,10 @@ func Load() *Config {
 		AnthropicKey:          getEnv("ANTHROPIC_API_KEY", ""),
 		SomniaTestnetRPCURL:   getEnv("SOMNIA_TESTNET_RPC_URL", ""),
 		SomniaMainnetRPCURL:   getEnv("SOMNIA_MAINNET_RPC_URL", ""),
+		GoogleClientID:        getEnv("GOOGLE_CLIENT_ID", ""),
+		GoogleClientSecret:    getEnv("GOOGLE_CLIENT_SECRET", ""),
+		GoogleRedirectURL:     getEnv("GOOGLE_REDIRECT_URL", ""),
+		FrontendURL:           getEnv("FRONTEND_URL", ""),
 		Env:                   getEnv("ENV", "development"),
 	}
 }
