@@ -29,6 +29,9 @@ func Setup(app *fiber.App, db *gorm.DB, cfg *config.Config, aiRegistry *ai.Regis
 	api.Post("/auth/wallet/verify", wh.Verify)
 	api.Post("/auth/wallet/link", middleware.AuthRequired(cfg.JWTSecret), wh.Link)
 
+	// Auth — current user
+	api.Get("/auth/me", middleware.AuthRequired(cfg.JWTSecret), handlers.NewMeHandler(db).Me)
+
 	// Legacy simple auth (kept for dev/testing, remove in prod if desired)
 	auth := handlers.NewAuthHandler(db, cfg)
 	api.Post("/auth/register", auth.Register)
