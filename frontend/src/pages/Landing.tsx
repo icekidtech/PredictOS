@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../store/auth";
 import { eventApi } from "../services/api";
 import { useNetwork } from "../hooks/useNetwork";
 
@@ -16,6 +17,7 @@ type Market = {
 const CATEGORIES = ["All", "technology", "politics", "sports", "weather", "finance"] as const;
 
 export default function Landing() {
+  const { user } = useAuth();
   const { network } = useNetwork();
   const [markets, setMarkets] = useState<Market[]>([]);
   const [activeCat, setActiveCat] = useState("All");
@@ -60,12 +62,20 @@ export default function Landing() {
               <span className={`w-1.5 h-1.5 rounded-full ${network === "mainnet" ? "bg-emerald-400" : "bg-amber-400"}`} />
               {network === "mainnet" ? "Mainnet" : "Testnet"}
             </span>
-            <Link to="/dashboard" className="hidden sm:inline-flex text-xs text-zinc-400 hover:text-white px-3 py-2">
-              Dashboard
-            </Link>
-            <Link to="/login" className="inline-flex items-center justify-center px-4 sm:px-5 py-2 rounded-full bg-[#3b82f6] hover:bg-[#2563eb] text-white text-xs sm:text-sm font-medium transition-colors">
-              Connect Wallet
-            </Link>
+            {user ? (
+              <Link to="/dashboard" className="inline-flex items-center justify-center px-4 sm:px-5 py-2 rounded-full bg-white text-zinc-900 text-xs sm:text-sm font-medium">
+                Dashboard
+              </Link>
+            ) : (
+              <>
+                <Link to="/dashboard" className="hidden sm:inline-flex text-xs text-zinc-400 hover:text-white px-3 py-2">
+                  Dashboard
+                </Link>
+                <Link to="/login" className="inline-flex items-center justify-center px-4 sm:px-5 py-2 rounded-full bg-[#3b82f6] hover:bg-[#2563eb] text-white text-xs sm:text-sm font-medium transition-colors">
+                  Connect Wallet
+                </Link>
+              </>
+            )}
           </div>
         </div>
 
