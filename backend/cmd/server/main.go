@@ -34,16 +34,19 @@ func main() {
 	registry := ai.NewRegistry(providers...)
 	log.Printf("AI providers: %v", registry.Names())
 
-	// DreamDEX sync — poll testnet markets every 30s (non-blocking, logs errors)
+	// DreamDEX sync — dual polling (testnet + mainnet) so data is ready before user toggles
 	syncer := dreamdex.NewSyncer(db, cfg)
-	go func() {
-		if n, err := syncer.SyncOnce("testnet"); err != nil {
-			log.Printf("dreamdex initial sync: %v", err)
-		} else {
-			log.Printf("dreamdex initial sync: %d markets", n)
-		}
-	}()
-	syncer.StartPolling("testnet", 30*time.Second)
+	for _, network := range []string{"testnet", "mainnet"} {
+		nw := network
+		go func() {
+			if n, err := syncer.SyncOnce(nw); err != nil {
+				log.Printf("dreamdex initial sync (%s): %v", nw, err)
+			} else {
+				log.Printf("dreamdex initial sync (%s): %d markets", nw, n)
+			}
+		}()
+		syncer.StartPolling(nw, 30*time.Second)
+	}
 
 	app := fiber.New(fiber.Config{
 		AppName: "PredictOS Backend",
