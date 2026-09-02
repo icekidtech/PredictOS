@@ -2,11 +2,13 @@ package main
 
 import (
 	"log"
+	"time"
 
 	"predictos-backend/internal/config"
 	"predictos-backend/internal/database"
 	"predictos-backend/internal/routes"
 	"predictos-backend/internal/services/ai"
+	"predictos-backend/internal/services/dreamdex"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -31,6 +33,17 @@ func main() {
 	}
 	registry := ai.NewRegistry(providers...)
 	log.Printf("AI providers: %v", registry.Names())
+
+	// DreamDEX sync — poll testnet markets every 30s (non-blocking, logs errors)
+	syncer := dreamdex.NewSyncer(db, cfg)
+	go func() {
+		if n, err := syncer.SyncOnce("testnet"); err != nil {
+			log.Printf("dreamdex initial sync: %v", err)
+		} else {
+			log.Printf("dreamdex initial sync: %d markets", n)
+		}
+	}()
+	syncer.StartPolling("testnet", 30*time.Second)
 
 	app := fiber.New(fiber.Config{
 		AppName: "PredictOS Backend",
