@@ -92,6 +92,34 @@ func (c *Client) FetchMarkets() ([]Market, error) {
 	return nil, fmt.Errorf("dreamdex: unexpected markets response: %s", string(body[:min(500, len(body))]))
 }
 
+func (c *Client) FetchOrderBook(symbol string) (bids [][]float64, asks [][]float64, err error) {
+	// DreamDEX order book endpoint — try common paths
+	paths := []string{
+		"/orderbook?symbol=" + symbol,
+		"/orderBook?symbol=" + symbol,
+		"/book?symbol=" + symbol,
+	}
+	for _, p := range paths {
+		resp, e := c.http.Get(c.baseURL + p)
+		if e != nil {
+			continue
+		}
+		body, _ := io.ReadAll(resp.Body)
+		resp.Body.Close()
+		if resp.StatusCode != 200 {
+			continue
+		}
+		var ob struct {
+			Bids [][]float64 `json:"bids"`
+			Asks [][]float64 `json:"asks"`
+		}
+		if json.Unmarshal(body, &ob) == nil && (len(ob.Bids) > 0 || len(ob.Asks) > 0) {
+			return ob.Bids, ob.Asks, nil
+		}
+	}
+	return nil, nil, fmt.Errorf("orderbook not available for %s", symbol)
+}
+
 func min(a, b int) int {
 	if a < b {
 		return a
