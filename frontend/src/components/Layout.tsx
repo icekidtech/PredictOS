@@ -11,7 +11,6 @@ const nav = [
   { to: "/strategies", label: "Strategies" },
   { to: "/backtests", label: "Backtests" },
   { to: "/events", label: "Markets" },
-  { to: "/settings", label: "Settings" },
 ];
 
 export default function Layout({ children }: { children: React.ReactNode }) {
@@ -83,23 +82,28 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               {user ? (
                 <div className="relative" ref={profileRef}>
                   <button onClick={() => setProfileOpen(!profileOpen)} className="flex items-center gap-2 pl-1 pr-3 py-1 rounded-full bg-white/[0.06] border border-white/10 hover:bg-white/[0.10] transition-colors">
-                    {user.avatar_url ? <img src={user.avatar_url} alt="" className="w-6 h-6 rounded-full" /> : <span className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-white text-[10px]">{(user.username || user.email || "U")[0].toUpperCase()}</span>}
+                    {user.avatar_url ? <img src={user.avatar_url} alt="" className="w-6 h-6 rounded-full object-cover" referrerPolicy="no-referrer" /> : <span className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-white text-[10px]">{(user.username || user.email || "U")[0].toUpperCase()}</span>}
                     <span className="text-xs text-white max-w-[120px] truncate">{user.username || user.email}</span>
                     <span className="text-zinc-500 text-xs">▾</span>
                   </button>
                   {profileOpen && (
                     <div className="absolute right-0 mt-2 w-72 rounded-2xl bg-[#0f1420] border border-white/10 shadow-xl overflow-hidden z-50">
-                      <div className="p-4 border-b border-white/5">
-                        <div className="text-sm font-medium truncate">{user.username || "User"}</div>
-                        <div className="text-xs text-zinc-500 truncate">{user.email}</div>
+                      <div className="p-4 border-b border-white/5 flex gap-3">
+                        {user.avatar_url ? <img src={user.avatar_url} alt="" className="w-10 h-10 rounded-full object-cover shrink-0" referrerPolicy="no-referrer" /> : <span className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm shrink-0">{(user.username || user.email || "U")[0].toUpperCase()}</span>}
+                        <div className="min-w-0">
+                          <div className="text-sm font-medium truncate">{user.username || "User"}</div>
+                          <div className="text-xs text-zinc-500 truncate">{user.email}</div>
+                        </div>
+                      </div>
+                      <div className="px-4 pb-3">
                         {user.wallet_address ? (
-                          <div className="mt-2 flex items-center gap-2 text-xs font-mono bg-white/[0.06] border border-white/10 rounded-full px-3 py-1.5">
+                          <div className="flex items-center gap-2 text-xs font-mono bg-white/[0.06] border border-white/10 rounded-full px-3 py-1.5">
                             <span className="w-2 h-2 rounded-full bg-emerald-400" />
                             <span className="truncate">{user.wallet_address.slice(0, 6)}...{user.wallet_address.slice(-4)}</span>
                             <button onClick={() => { navigator.clipboard.writeText(user.wallet_address!); }} className="ml-auto text-zinc-400 hover:text-white">⧉</button>
                           </div>
                         ) : (
-                          <div className="mt-3 space-y-2">
+                          <div className="space-y-2">
                             <div className="text-xs text-amber-300">No wallet linked</div>
                             <ConnectButton />
                             {isConnected && address && (
