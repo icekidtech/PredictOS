@@ -82,7 +82,8 @@ type Strategy struct {
 
 type HistoricalEvent struct {
 	BaseModel
-	SomniaEventID   string    `gorm:"uniqueIndex;size:255;not null" json:"somnia_event_id"`
+	SomniaEventID   string    `gorm:"uniqueIndex:idx_somnia_network;size:255;not null" json:"somnia_event_id"`
+	Network         string    `gorm:"size:20;default:testnet;uniqueIndex:idx_somnia_network" json:"network"` // testnet | mainnet
 	EventName       string    `gorm:"size:500;not null" json:"event_name"`
 	Category        string    `gorm:"size:100;not null;index:idx_category_date" json:"category"`
 	Description     string    `gorm:"type:text" json:"description"`
