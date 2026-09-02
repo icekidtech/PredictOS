@@ -5,6 +5,7 @@ import (
 	"predictos-backend/internal/handlers"
 	"predictos-backend/internal/middleware"
 	"predictos-backend/internal/services/ai"
+	"predictos-backend/internal/services/dreamdex"
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
@@ -42,6 +43,15 @@ func Setup(app *fiber.App, db *gorm.DB, cfg *config.Config, aiRegistry *ai.Regis
 	api.Get("/events", eh.List)
 	api.Get("/events/:id", eh.Get)
 	api.Get("/events/:id/prices", eh.Prices)
+	api.Post("/events/sync", func(c *fiber.Ctx) error {
+		network := c.Query("network", "testnet")
+		syncer := dreamdex.NewSyncer(db, cfg)
+		n, err := syncer.SyncOnce(network)
+		if err != nil {
+			return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+		}
+		return c.JSON(fiber.Map{"message": "sync completed", "network": network, "upserted": n})
+	})
 
 	// Protected routes
 	protected := api.Group("", middleware.AuthRequired(cfg.JWTSecret))
