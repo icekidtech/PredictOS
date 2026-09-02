@@ -55,9 +55,12 @@ export const portfolioApi = {
   closePosition: (id: string) => api.post(`/portfolio/positions/${id}/close`),
 };
 
-// Events
+// Events — network-aware (testnet | mainnet)
 export const eventApi = {
-  list: (params?: Record<string, string>) => api.get("/events", { params }),
+  list: (params?: Record<string, string>) => {
+    const network = localStorage.getItem("network") || "testnet";
+    return api.get("/events", { params: { network, ...params } });
+  },
   get: (id: string) => api.get(`/events/${id}`),
   prices: (id: string, params?: Record<string, string>) => api.get(`/events/${id}/prices`, { params }),
 };
