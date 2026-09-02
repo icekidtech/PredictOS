@@ -49,6 +49,9 @@ func Connect(databaseURL string) *gorm.DB {
 		log.Fatalf("auto-migration failed: %v", err)
 	}
 
+	// Heal stale indexes from schema evolution (AutoMigrate never drops)
+	db.Exec(`DROP INDEX IF EXISTS idx_historical_events_somnia_event_id`)
+
 	// TimescaleDB hypertable — only if extension is installed (plain Postgres is fine for MVP)
 	if db.Exec(`SELECT create_hypertable('price_history', 'time', if_not_exists => TRUE, migrate_data => TRUE)`).Error == nil {
 		db.Exec(`ALTER TABLE price_history SET (timescaledb.compress, timescaledb.compress_orderby = 'time DESC')`)
