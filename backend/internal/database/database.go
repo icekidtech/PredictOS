@@ -2,6 +2,7 @@ package database
 
 import (
 	"log"
+	"os"
 
 	"predictos-backend/internal/models"
 
@@ -10,9 +11,22 @@ import (
 	"gorm.io/gorm/logger"
 )
 
+func getEnv(key, fallback string) string {
+	if v := os.Getenv(key); v != "" {
+		return v
+	}
+	return fallback
+}
+
 func Connect(databaseURL string) *gorm.DB {
+	level := logger.Info
+	if loggerLevel := getEnv("GORM_LOG_LEVEL", ""); loggerLevel == "silent" {
+		level = logger.Silent
+	} else if loggerLevel == "warn" {
+		level = logger.Warn
+	}
 	db, err := gorm.Open(postgres.Open(databaseURL), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
+		Logger: logger.Default.LogMode(level),
 	})
 	if err != nil {
 		log.Fatalf("failed to connect to database: %v", err)
