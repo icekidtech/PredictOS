@@ -89,15 +89,32 @@ func (s *Syncer) SyncOnce(network string) (int, error) {
 			ev.ID = existing.ID
 		}
 
-		// Price snapshot if order book available
+		// Price snapshot — try embedded book first, then fetch per-symbol
+		var bid, ask *float64
 		if m.OrderBook != nil && len(m.OrderBook.Bids) > 0 && len(m.OrderBook.Asks) > 0 {
-			bid := m.OrderBook.Bids[0][0]
-			ask := m.OrderBook.Asks[0][0]
+			b := m.OrderBook.Bids[0][0]
+			a := m.OrderBook.Asks[0][0]
+			bid, ask = &b, &a
+		} else {
+			// Fetch order book for this market's outcome symbol
+			symbol := m.Symbol
+			if symbol == "" && len(m.Outcomes) > 0 {
+				symbol = m.Outcomes[0].Symbol
+			}
+			if symbol != "" {
+				if bids, asks, err := client.FetchOrderBook(symbol); err == nil && len(bids) > 0 && len(asks) > 0 {
+					b := bids[0][0]
+					a := asks[0][0]
+					bid, ask = &b, &a
+				}
+			}
+		}
+		if bid != nil && ask != nil {
 			ph := models.PriceHistory{
 				Time:    time.Now().UTC(),
 				EventID: ev.ID,
-				Bid:     bid,
-				Ask:     ask,
+				Bid:     *bid,
+				Ask:     *ask,
 			}
 			if existing.ID != uuid.Nil {
 				ph.EventID = existing.ID
