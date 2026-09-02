@@ -30,6 +30,7 @@ export default function Settings() {
         network,
       });
       localStorage.setItem("network", network);
+      window.dispatchEvent(new CustomEvent("network-change", { detail: network }));
       setApiKey("");
       alert("Settings saved");
     } catch (e: unknown) {
