@@ -14,9 +14,13 @@ type EventHandler struct{ db *gorm.DB }
 
 func NewEventHandler(db *gorm.DB) *EventHandler { return &EventHandler{db: db} }
 
-// GET /api/v1/events
+// GET /api/v1/events — respects ?network=testnet|mainnet (defaults to testnet)
 func (h *EventHandler) List(c *fiber.Ctx) error {
-	q := h.db.Model(&models.HistoricalEvent{})
+	network := c.Query("network", "testnet")
+	if network != "testnet" && network != "mainnet" {
+		network = "testnet"
+	}
+	q := h.db.Model(&models.HistoricalEvent{}).Where("network = ?", network)
 	if cat := c.Query("category"); cat != "" {
 		q = q.Where("category = ?", cat)
 	}
