@@ -22,6 +22,8 @@ export default function Dashboard() {
     portfolioApi.positions().then((r) => setPositions(r.data.positions ?? [])).catch(() => {});
   }, []);
 
+  const { refreshUser } = useAuth();
+
   const handleLinkWallet = async () => {
     if (!address) return;
     setLinking(true);
@@ -30,8 +32,7 @@ export default function Dashboard() {
       const { data } = await authApi.nonce(address);
       const signature = await signMessageAsync({ message: data.message });
       await authApi.walletLink({ address, message: data.message, signature });
-      // Refresh user — reload to pick up new wallet_address
-      window.location.reload();
+      await refreshUser();
     } catch (e: unknown) {
       const msg = (e as { response?: { data?: { error?: string } } })?.response?.data?.error || (e instanceof Error ? e.message : "Failed to link wallet");
       setLinkError(msg);
