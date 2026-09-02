@@ -63,6 +63,7 @@ func (s *Syncer) SyncOnce(network string) (int, error) {
 		ev := models.HistoricalEvent{
 			BaseModel:      models.BaseModel{ID: uuid.New()},
 			SomniaEventID:  eventID,
+			Network:        network,
 			EventName:      eventName,
 			Category:       category,
 			Description:    describeMarket(m),
@@ -70,9 +71,9 @@ func (s *Syncer) SyncOnce(network string) (int, error) {
 			SettlementDate: expiry,
 		}
 
-		// Upsert by somnia_event_id
+		// Upsert by (somnia_event_id, network)
 		var existing models.HistoricalEvent
-		err := s.db.Where("somnia_event_id = ?", eventID).First(&existing).Error
+		err := s.db.Where("somnia_event_id = ? AND network = ?", eventID, network).First(&existing).Error
 		if err == gorm.ErrRecordNotFound {
 			if err := s.db.Create(&ev).Error; err != nil {
 				log.Printf("dreamdex sync: create %s: %v", eventID, err)
