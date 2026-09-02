@@ -1,14 +1,23 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { useAccount, useSignMessage } from "wagmi";
+import { useAccount, useSignMessage, useBalance, useDisconnect } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { portfolioApi, authApi } from "../services/api";
 import { useAuth } from "../store/auth";
+import { somniaTestnet, somniaMainnet } from "../config/wagmi";
+import { useNetwork } from "../hooks/useNetwork";
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const { network } = useNetwork();
   const { address, isConnected } = useAccount();
   const { signMessageAsync } = useSignMessage();
+  const { disconnect } = useDisconnect();
+  const { data: walletBalance } = useBalance({
+    address: (user?.wallet_address as `0x${string}`) || address,
+    chainId: network === "mainnet" ? somniaMainnet.id : somniaTestnet.id,
+    query: { enabled: !!(user?.wallet_address || address) },
+  });
   const [summary, setSummary] = useState<Record<string, unknown> | null>(null);
   const [positions, setPositions] = useState<unknown[]>([]);
   const [linking, setLinking] = useState(false);
@@ -55,7 +64,7 @@ export default function Dashboard() {
       </div>
 
       {/* Wallet banner — Google users without wallet */}
-      {needsWallet && (
+      {needsWallet ? (
         <div className="rounded-2xl bg-amber-500/10 border border-amber-500/20 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex gap-3">
             <span className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-300 shrink-0">◈</span>
@@ -73,6 +82,17 @@ export default function Dashboard() {
             )}
             {linkError && <span className="text-xs text-red-400">{linkError}</span>}
           </div>
+        </div>
+      ) : (
+        <div className="rounded-2xl bg-white/[0.04] border border-white/10 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <span className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-300 shrink-0">◈</span>
+            <div>
+              <div className="text-sm font-medium">Wallet Connected</div>
+              <div className="text-xs font-mono text-zinc-400">{user.wallet_address?.slice(0, 6)}...{user.wallet_address?.slice(-4)} · {walletBalance ? `${Number(walletBalance.formatted).toFixed(4)} ${walletBalance.symbol}` : "—"} on {network}</div>
+            </div>
+          </div>
+          <button onClick={() => disconnect()} className="text-xs bg-white/[0.06] border border-white/10 rounded-full px-4 py-2 hover:bg-white/[0.10]">Disconnect</button>
         </div>
       )}
 
