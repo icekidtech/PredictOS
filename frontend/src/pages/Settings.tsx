@@ -14,7 +14,9 @@ export default function Settings() {
       setProvider(r.data.ai_provider ?? "openai");
       setModel(r.data.ai_model ?? "gpt-4o-mini");
       setHasKey(!!r.data.has_api_key);
-      setNetwork(r.data.network ?? "testnet");
+      const nw = r.data.network ?? "testnet";
+      setNetwork(nw);
+      localStorage.setItem("network", nw);
     }).catch(() => {});
   }, []);
 
@@ -27,6 +29,7 @@ export default function Settings() {
         api_key: apiKey || undefined,
         network,
       });
+      localStorage.setItem("network", network);
       setApiKey("");
       alert("Settings saved");
     } catch (e: unknown) {
