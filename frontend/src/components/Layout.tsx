@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { useAccount, useSignMessage, useDisconnect } from "wagmi";
+import { useAccount, useSignMessage, useDisconnect, useBalance } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAuth } from "../store/auth";
 import { authApi, settingsApi } from "../services/api";
 import { useNetwork } from "../hooks/useNetwork";
+import { somniaTestnet, somniaMainnet } from "../config/wagmi";
 
 const nav = [
   { to: "/dashboard", label: "Dashboard" },
@@ -20,6 +21,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const { address, isConnected } = useAccount();
   const { signMessageAsync } = useSignMessage();
   const { disconnect } = useDisconnect();
+  const { data: balance } = useBalance({
+    address: (user?.wallet_address as `0x${string}`) || address,
+    chainId: network === "mainnet" ? somniaMainnet.id : somniaTestnet.id,
+    query: { enabled: !!(user?.wallet_address || address) },
+  });
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [linking, setLinking] = useState(false);
@@ -95,13 +101,20 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                           <div className="text-xs text-zinc-500 truncate">{user.email}</div>
                         </div>
                       </div>
-                      <div className="px-4 pb-3">
+                      <div className="px-4 pb-3 space-y-2">
                         {user.wallet_address ? (
-                          <div className="flex items-center gap-2 text-xs font-mono bg-white/[0.06] border border-white/10 rounded-full px-3 py-1.5">
-                            <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                            <span className="truncate">{user.wallet_address.slice(0, 6)}...{user.wallet_address.slice(-4)}</span>
-                            <button onClick={() => { navigator.clipboard.writeText(user.wallet_address!); }} className="ml-auto text-zinc-400 hover:text-white">⧉</button>
-                          </div>
+                          <>
+                            <div className="flex items-center gap-2 text-xs font-mono bg-white/[0.06] border border-white/10 rounded-full px-3 py-1.5">
+                              <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                              <span className="truncate">{user.wallet_address.slice(0, 6)}...{user.wallet_address.slice(-4)}</span>
+                              <button onClick={() => { navigator.clipboard.writeText(user.wallet_address!); }} className="ml-auto text-zinc-400 hover:text-white">⧉</button>
+                            </div>
+                            <div className="flex items-center justify-between text-xs bg-white/[0.04] border border-white/5 rounded-xl px-3 py-2">
+                              <span className="text-zinc-500">Balance</span>
+                              <span className="font-mono font-medium">{balance ? `${Number(balance.formatted).toFixed(4)} ${balance.symbol}` : "—"}</span>
+                            </div>
+                            <button onClick={() => { disconnect(); }} className="w-full text-xs bg-white/[0.06] border border-white/10 rounded-full py-2 hover:bg-white/[0.10]">Disconnect Wallet</button>
+                          </>
                         ) : (
                           <div className="space-y-2">
                             <div className="text-xs text-amber-300">No wallet linked</div>
