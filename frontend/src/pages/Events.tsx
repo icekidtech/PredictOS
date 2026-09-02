@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { eventApi } from "../services/api";
+import { useNetwork } from "../hooks/useNetwork";
 
 type Market = {
   id: string;
@@ -14,6 +15,7 @@ type Market = {
 const CATEGORIES = ["All", "crypto", "technology", "politics", "sports", "weather", "finance"] as const;
 
 export default function Events() {
+  const { network } = useNetwork();
   const [events, setEvents] = useState<Market[]>([]);
   const [activeCat, setActiveCat] = useState("All");
   const [query, setQuery] = useState("");
@@ -23,7 +25,7 @@ export default function Events() {
       .list(activeCat !== "All" ? { category: activeCat } : undefined)
       .then((r) => setEvents(r.data.events ?? []))
       .catch(() => {});
-  }, [activeCat]);
+  }, [activeCat, network]);
 
   const filtered = query
     ? events.filter((m) => m.event_name.toLowerCase().includes(query.toLowerCase()))
@@ -32,7 +34,13 @@ export default function Events() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">Markets</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">Markets</h1>
+          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium border ${network === "mainnet" ? "bg-emerald-500/15 border-emerald-500/20 text-emerald-300" : "bg-amber-500/15 border-amber-500/20 text-amber-300"}`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${network === "mainnet" ? "bg-emerald-400" : "bg-amber-400"}`} />
+            {network === "mainnet" ? "Mainnet" : "Testnet"}
+          </span>
+        </div>
         <div className="relative w-full sm:w-72">
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 text-sm">⌕</span>
           <input
