@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { eventApi } from "../services/api";
+import { useNetwork } from "../hooks/useNetwork";
 
 type Market = {
   id: string;
@@ -15,6 +16,7 @@ type Market = {
 const CATEGORIES = ["All", "technology", "politics", "sports", "weather", "finance"] as const;
 
 export default function Landing() {
+  const { network } = useNetwork();
   const [markets, setMarkets] = useState<Market[]>([]);
   const [activeCat, setActiveCat] = useState("All");
   const [query, setQuery] = useState("");
@@ -24,7 +26,7 @@ export default function Landing() {
       .list(activeCat !== "All" ? { category: activeCat } : undefined)
       .then((r) => setMarkets(r.data.events ?? []))
       .catch(() => {});
-  }, [activeCat]);
+  }, [activeCat, network]);
 
   const filtered = query
     ? markets.filter((m) => m.event_name.toLowerCase().includes(query.toLowerCase()))
@@ -54,6 +56,10 @@ export default function Landing() {
           </div>
 
           <div className="flex items-center gap-2">
+            <span className={`hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium border ${network === "mainnet" ? "bg-emerald-500/15 border-emerald-500/20 text-emerald-300" : "bg-amber-500/15 border-amber-500/20 text-amber-300"}`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${network === "mainnet" ? "bg-emerald-400" : "bg-amber-400"}`} />
+              {network === "mainnet" ? "Mainnet" : "Testnet"}
+            </span>
             <Link to="/dashboard" className="hidden sm:inline-flex text-xs text-zinc-400 hover:text-white px-3 py-2">
               Dashboard
             </Link>
