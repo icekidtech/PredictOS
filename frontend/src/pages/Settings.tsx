@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { settingsApi } from "../services/api";
+import { useToast } from "../components/Toast";
 
 export default function Settings() {
+  const { show, toast } = useToast();
   const [provider, setProvider] = useState("openai");
   const [model, setModel] = useState("gpt-4o-mini");
   const [apiKey, setApiKey] = useState("");
@@ -32,9 +34,9 @@ export default function Settings() {
       localStorage.setItem("network", network);
       window.dispatchEvent(new CustomEvent("network-change", { detail: network }));
       setApiKey("");
-      alert("Settings saved");
+      show("Settings saved");
     } catch (e: unknown) {
-      alert(e instanceof Error ? e.message : "failed");
+      show(e instanceof Error ? e.message : "Failed to save");
     } finally { setSaving(false); }
   };
 
@@ -88,6 +90,7 @@ export default function Settings() {
       <button onClick={save} disabled={saving} className="bg-indigo-600 hover:bg-indigo-500 px-6 py-2 rounded-md text-sm disabled:opacity-50">
         {saving ? "Saving..." : "Save Settings"}
       </button>
+      {toast}
     </div>
   );
 }
